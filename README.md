@@ -2,6 +2,8 @@
 
 Tee for re-frame event handlers
 
+[![Clojars Project](https://img.shields.io/clojars/v/alrightee.svg)](https://clojars.org/alrightee)
+
 ## How to use it
 
 Imagine you have a re-frame application and you are using a library which itself is implemented in re-frame.
@@ -48,3 +50,5 @@ The event dispatched to `::lib/on-start` is now tee'd and is sent to _both_ `::l
 so the library carries on behaving as normal but you get to handle the event in your code too.
 
 ![](https://media.giphy.com/media/5hc2bkC60heU/giphy.gif)
+
+[![CircleCI](https://circleci.com/gh/oliyh/alrightee.svg?style=svg)](https://circleci.com/gh/oliyh/alrightee)
