@@ -1,0 +1,3 @@
+^{:watch-dirs ["test" "src"]
+  :auto-testing true}
+{:main alrightee.core}
