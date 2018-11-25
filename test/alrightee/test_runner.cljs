@@ -6,5 +6,3 @@
 
 (defn -main [& args]
   (run-tests-async 5000))
-
-(-main)
