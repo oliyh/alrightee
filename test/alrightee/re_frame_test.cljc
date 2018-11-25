@@ -1,5 +1,5 @@
-(ns alrightee.core-test
-  (:require [alrightee.core :as tee]
+(ns alrightee.re-frame-test
+  (:require [alrightee.re-frame :as tee]
             [re-frame.core :as re-frame]
             [re-frame.db :refer [app-db]]
             [day8.re-frame.test :refer [run-test-sync]]
@@ -31,18 +31,29 @@
   (testing "can replace an existing event handler with a tee"
     (run-test-sync
 
-     (re-frame/reg-event-fx ::start (fn [{:keys [db]} [_ message]]
-                                      {:db (assoc db ::start message)
-                                       :dispatch [::finish message]}))
+     (testing "can tee"
+       (re-frame/reg-event-fx ::start (fn [{:keys [db]} [_ message]]
+                                        {:db (assoc db ::start message)
+                                         :dispatch [::finish message]}))
 
-     (reg-recorder ::finish)
-     (reg-recorder ::teed-handler)
+       (reg-recorder ::finish)
+       (reg-recorder ::teed-handler)
 
-     (tee/tee ::finish [::teed-handler])
+       (tee/tee ::finish [::teed-handler])
 
-     (re-frame/dispatch [::start "hi"])
+       (re-frame/dispatch [::start "hi"])
 
-     (is (= {::start "hi"
-             ::finish "hi"
-             ::teed-handler "hi"}
-            @app-db)))))
+       (is (= {::start "hi"
+               ::finish "hi"
+               ::teed-handler "hi"}
+              @app-db))
+
+       (testing "and un-tee"
+         (tee/un-tee ::finish)
+
+         (re-frame/dispatch [::start "bye"])
+
+         (is (= {::start "bye"
+                 ::finish "bye"
+                 ::teed-handler "hi"}
+                @app-db)))))))

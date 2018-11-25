@@ -6,48 +6,59 @@ Tee for re-frame event handlers
 
 ## How to use it
 
-Imagine you have a re-frame application and you are using a library which itself is implemented in re-frame.
+Install a tee to send the arguments of a function to additional other function(s) of your choice.
 
-```clojure
-(ns library.core
-  (:require [re-frame.core :as re-frame]))
+The original function will be called first and its return value will be returned.
+The other "sink" functions will be called in the order provided.
 
-(re-frame/reg-event-fx
-  ::init
-  (fn [{:keys [db]} [_ message]]
-    {:db (assoc db ::starting? true)
-     :dispatch [::on-start message]}))
-
-(re-frame/reg-event-db
-  ::on-start
-  (fn [db [_ message]]
-    (-> db
-      (assoc ::starting? false)
-      (assoc ::message message))))
-```
-
-Sometimes to organise the flow of events in your app, or to write a test, you want to capture the `::on-start` event.
-
-re-frame doesn't expose its core interceptor stack so this can be difficult... until now. Alrightee then!
+For example, imagine a library you were using had an `init` function that didn't provide any logging but you wanted to add some.
 
 ```clojure
 (ns my-app.core
   (:require [alrightee.core :as tee]
             [library.core :as lib]))
 
-(re-frame/reg-event-fx
-  ::lib-has-started
-  (fn [_ [_ message]]
-    ;; receives the same event as ::lib/on-start
-    ))
+(defn- log-init-call [& args]
+  (log/infof "Called %s with args %s" 'lib/init args))
 
-(tee/tee ::lib/on-start [::lib-has-started])
+(tee/tee #'lib/init [log-init-call]
 
-(re-frame/dispatch [::lib/init "hello!"])
+(lib/init {:some "args"})
 ```
 
-The event dispatched to `::lib/on-start` is now tee'd and is sent to _both_ `::lib-has-started` and `::lib/on-start`
+You can `un-tee` a function as well to return to the original behaviour:
+
+```clojure
+(tee/un-tee #'lib/init)
+```
+
+## re-frame
+
+re-frame event handlers can also be tee'd. Alrightee then!
+
+```clojure
+(ns my-app.core
+  (:require [alrightee.re-frame :as tee]
+            [library.core :as lib]))
+
+(re-frame/reg-event-fx
+  ::log-init-call
+  (fn [_ [_ & args]]
+    (log/infof "Called %s with args %s" 'lib/init args)))
+
+(tee/tee ::lib/init [::log-init-call])
+
+(re-frame/dispatch [::lib/init {:some "args"}])
+```
+
+The event dispatched to `::lib/init` is now tee'd and is sent to _both_ `::log-init-call` and `::lib/init`
 so the library carries on behaving as normal but you get to handle the event in your code too.
+
+As before, you can `un-tee`:
+
+```clojure
+(tee/un-tee ::lib/init)
+```
 
 ![](https://media.giphy.com/media/5hc2bkC60heU/giphy.gif)
 
