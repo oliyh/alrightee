@@ -5,12 +5,23 @@
 (defn- my-function [m x]
   (assoc m ::my-function x))
 
-(deftest tee-function-test
+(deftest tee-pure-test
+  (let [sink-call (atom nil)
+        teed-fn (tee/tee my-function [(fn sink [m x]
+                                        (reset! sink-call [m x]))])]
+    (is (= {:foo "bar"
+            ::my-function "baz"}
+           (teed-fn {:foo "bar"} "baz")))
+
+    (is (= [{:foo "bar"} "baz"]
+           @sink-call))))
+
+(deftest tee-mutation-test
   (let [sink-call (atom nil)]
     (testing "can tee"
-      (tee/tee #'my-function
-               [(fn sink [m x]
-                  (reset! sink-call [m x]))])
+      (tee/tee! #'my-function
+                [(fn sink [m x]
+                   (reset! sink-call [m x]))])
 
       (is (= {:foo "bar"
               ::my-function "baz"}
@@ -20,7 +31,7 @@
              @sink-call)))
 
     (testing "and untee"
-      (tee/un-tee #'my-function)
+      (tee/un-tee! #'my-function)
 
       (is (= {:quu "quux"
               ::my-function "baz"}

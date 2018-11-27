@@ -39,7 +39,7 @@
        (reg-recorder ::finish)
        (reg-recorder ::teed-handler)
 
-       (tee/tee ::finish [::teed-handler])
+       (tee/tee! ::finish [::teed-handler])
 
        (re-frame/dispatch [::start "hi"])
 
@@ -49,7 +49,7 @@
               @app-db))
 
        (testing "and un-tee"
-         (tee/un-tee ::finish)
+         (tee/un-tee! ::finish)
 
          (re-frame/dispatch [::start "bye"])
 
