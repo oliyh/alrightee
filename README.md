@@ -21,7 +21,7 @@ For example, imagine a library you were using had an `init` function that didn't
 (defn- log-init-call [& args]
   (log/infof "Called %s with args %s" 'lib/init args))
 
-(tee/tee #'lib/init [log-init-call]
+(tee/tee! #'lib/init [log-init-call]
 
 (lib/init {:some "args"})
 ```
@@ -29,7 +29,7 @@ For example, imagine a library you were using had an `init` function that didn't
 You can `un-tee` a function as well to return to the original behaviour:
 
 ```clojure
-(tee/un-tee #'lib/init)
+(tee/un-tee! #'lib/init)
 ```
 
 ## re-frame
@@ -46,7 +46,7 @@ re-frame event handlers can also be tee'd. Alrightee then!
   (fn [_ [_ & args]]
     (log/infof "Called %s with args %s" 'lib/init args)))
 
-(tee/tee ::lib/init [::log-init-call])
+(tee/tee! ::lib/init [::log-init-call])
 
 (re-frame/dispatch [::lib/init {:some "args"}])
 ```
@@ -57,7 +57,7 @@ so the library carries on behaving as normal but you get to handle the event in 
 As before, you can `un-tee`:
 
 ```clojure
-(tee/un-tee ::lib/init)
+(tee/un-tee! ::lib/init)
 ```
 
 ![](https://media.giphy.com/media/5hc2bkC60heU/giphy.gif)
