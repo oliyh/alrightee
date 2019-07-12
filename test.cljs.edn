@@ -5,5 +5,6 @@
 
   ;; uncomment to launch tests in a headless environment
   ;; you will have to figure out the path to chrome on your system
-  :launch-js ["/opt/google/chrome/google-chrome" "--headless" "--disable-gpu" "--repl" :open-url]}
+  :launch-js ["/opt/google/chrome/google-chrome" "--headless" "--disable-gpu" "--remote-debugging-port=9222" "--no-sandbox" :open-url]
+  }
 {:main alrightee.test-runner}
